@@ -1,5 +1,5 @@
 ﻿using CRUD_HexagonalArchitecture.Application.Ports.In;
-using CRUD_HexagonalArchitecture.Application.Ports.Out;
+using CRUD_HexagonalArchitecture.Domain.Interfaces.Repositories;
 
 namespace CRUD_HexagonalArchitecture.Application.UseCases.Tax
 {
@@ -12,6 +12,9 @@ namespace CRUD_HexagonalArchitecture.Application.UseCases.Tax
             _repository = repository;
         }
 
-        public async Task<bool> ExecuteAsync(int id) => await _repository.DeleteAsync(id);
+        public async Task<bool> ExecuteAsync(int id)
+        {
+            return await _repository.DeleteAsync(id);
+        }
     }
 }

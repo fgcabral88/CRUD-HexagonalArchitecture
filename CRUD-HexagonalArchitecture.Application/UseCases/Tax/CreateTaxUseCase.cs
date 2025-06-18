@@ -1,7 +1,7 @@
 ﻿using CRUD_HexagonalArchitecture.Application.Dtos.Tax;
 using CRUD_HexagonalArchitecture.Application.Ports.In;
-using CRUD_HexagonalArchitecture.Application.Ports.Out;
 using CRUD_HexagonalArchitecture.Domain.Entities;
+using CRUD_HexagonalArchitecture.Domain.Interfaces.Repositories;
 
 namespace CRUD_HexagonalArchitecture.Application.UseCases.Tax
 {

@@ -6,8 +6,8 @@ namespace CRUD_HexagonalArchitecture.Domain.Interfaces.Repositories
     {
         Task<IEnumerable<TaxEntity>> GetAllAsync();
         Task<TaxEntity?> GetByIdAsync(int id);
-        Task AddAsync(TaxEntity tax);
-        Task UpdateAsync(TaxEntity tax);
-        Task DeleteAsync(int id);
+        Task<TaxEntity> CreateAsync(TaxEntity tax);
+        Task<TaxEntity> UpdateAsync(TaxEntity tax);
+        Task<bool> DeleteAsync(int id);
     }
 }

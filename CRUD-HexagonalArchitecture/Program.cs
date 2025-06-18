@@ -1,5 +1,6 @@
 ﻿using CRUD_HexagonalArchitecture.Application.Ports.In;
 using CRUD_HexagonalArchitecture.Application.UseCases.Tax;
+using CRUD_HexagonalArchitecture.Domain.Interfaces.Repositories;
 using CRUD_HexagonalArchitecture.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
@@ -7,25 +8,45 @@ using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 🔌 Database: SQL Server
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Adiciona variáveis de ambiente
+builder.Configuration.AddEnvironmentVariables();
 
-// 💡 Application Services
-builder.Services.AddScoped<CRUD_HexagonalArchitecture.Application.Ports.Out.ITaxRepository, TaxRepository>();
+// Verifica se está rodando em container
+var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+
+var connectionString = isDocker
+    ? builder.Configuration.GetConnectionString("DefaultConnection")
+    : builder.Configuration.GetConnectionString("DefaultConnectionFromLocal");
+
+if (string.IsNullOrWhiteSpace(connectionString))
+{
+    Console.WriteLine("Connection string está vazia. Verifique o docker-compose ou appsettings.");
+    throw new InvalidOperationException("Connection string está vazia. Verifique o docker-compose ou appsettings.");
+}
+else
+{
+    Console.WriteLine($"Connection string carregada: {connectionString}");
+}
+
+// Configura o DbContext com SQL Server
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
+// Registra casos de uso e repositórios
 builder.Services.AddScoped<ICreateTaxUseCase, CreateTaxUseCase>();
 builder.Services.AddScoped<IGetTaxUseCase, GetTaxUseCase>();
 builder.Services.AddScoped<IUpdateTaxUseCase, UpdateTaxUseCase>();
 builder.Services.AddScoped<IDeleteTaxUseCase, DeleteTaxUseCase>();
+builder.Services.AddScoped<ITaxRepository, TaxRepository>();
 
-// 📦 Controllers
+// Configura controllers e JSON
 builder.Services.AddControllers()
     .AddJsonOptions(opt =>
     {
         opt.JsonSerializerOptions.PropertyNamingPolicy = null;
     });
 
-// 📘 Swagger com anotações e XML docs
+// Configura Swagger com comentários XML
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -45,7 +66,6 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-// 🚀 Pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -53,9 +73,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

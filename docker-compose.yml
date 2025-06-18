@@ -1,0 +1,39 @@
+version: '3.9'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      SA_PASSWORD: "SuaSenhaForte123"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - backend
+    volumes:
+      - sql_data:/var/opt/mssql
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    command: /bin/bash -c "/opt/mssql/bin/sqlservr"
+
+  api:
+    build:
+      context: .
+      dockerfile: CRUD-HexagonalArchitecture/Dockerfile
+    container_name: hex-api
+    ports:
+      - "5000:8080"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=financeiro_db_hexagonalarchitecture;User Id=dev_felipe;Password=dev2025;TrustServerCertificate=True;"
+    depends_on:
+      - sqlserver
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  sql_data:

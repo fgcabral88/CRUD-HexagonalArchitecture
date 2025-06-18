@@ -1,7 +1,7 @@
-﻿using CRUD_HexagonalArchitecture.Application.Ports.Out;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using CRUD_HexagonalArchitecture.Infrastructure.Data;
 using CRUD_HexagonalArchitecture.Domain.Entities;
+using CRUD_HexagonalArchitecture.Domain.Interfaces.Repositories;
 
 public class TaxRepository : ITaxRepository
 {
@@ -21,9 +21,15 @@ public class TaxRepository : ITaxRepository
         return tax;
     }
 
-    public async Task<TaxEntity?> GetByIdAsync(int id) => await _context.Taxes.FindAsync(id);
+    public async Task<TaxEntity?> GetByIdAsync(int id)
+    {
+        return await _context.Taxes.FindAsync(id);
+    }
 
-    public async Task<IEnumerable<TaxEntity>> GetAllAsync() => await _context.Taxes.ToListAsync();
+    public async Task<IEnumerable<TaxEntity>> GetAllAsync()
+    {
+        return await _context.Taxes.ToListAsync();
+    }
 
     public async Task<TaxEntity> UpdateAsync(TaxEntity tax)
     {
